@@ -124,6 +124,9 @@ Output:
 ```
 
 ## Changelog
+### v1.2.2
+- Correct wrong variable names..
+
 ### v1.2.1
 - Setting a default value for a date could create unexpected Exceptions
 - Change `created_at` to `order_by`

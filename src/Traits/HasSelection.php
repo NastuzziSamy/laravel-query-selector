@@ -145,7 +145,7 @@ Trait HasSelection {
     public function scopeSelect(Builder $query) {
         if ($this->selection) {
             $dateSelection = null;
-            $dataSelectors = [
+            $dateSelectors = [
                 'day', 'week', 'month', 'year',
             ];
 
@@ -155,11 +155,11 @@ Trait HasSelection {
                 if ($selector === 'paginate' || $param === null) // Paginate returns a collection
                     continue;
 
-                if (in_array($selector, $dataSelectors) && ($this->uniqueDateSelector ?? true)) {
+                if (in_array($selector, $dateSelectors) && ($this->uniqueDateSelector ?? true)) {
                     if (!\Request::filled($selector))
                         continue;
 
-                    if ($dataSelection)
+                    if ($dateSelection)
                         throw new SelectionException('Can\'t set the selector '.$selector.' after the selector '.$dateSelection);
 
                     $dateSelection = $selector;
