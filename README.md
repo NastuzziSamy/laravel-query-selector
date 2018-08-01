@@ -124,6 +124,9 @@ Output:
 ```
 
 ## Changelog
+### v1.1.1
+- Throw now an Exception if the user tries to set mutiple date restrictions
+
 ### v1.1.0
 - Add one date selector restriction: avoid from setting multiple date restrictions
 - Advice:

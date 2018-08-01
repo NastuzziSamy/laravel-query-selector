@@ -142,7 +142,7 @@ Trait HasSelection {
      */
     public function scopeSelect(Builder $query) {
         if ($this->selection) {
-            $dateSelection = false;
+            $dateSelection = null;
             $dataSelectors = [
                 'day', 'week', 'month', 'year',
             ];
@@ -155,9 +155,9 @@ Trait HasSelection {
 
                 if (in_array($selector, $dataSelectors) && ($this->uniqueDateSelector ?? true)) {
                     if ($dataSelection)
-                        continue;
+                        throw new \Exception('Can\'t set the selector '.$selector.' after the selector '.$dateSelection);
 
-                    $dateSelection = true;
+                    $dateSelection = $selector;
                 }
 
                 $query = $this->{'scope'.ucfirst($selector)}(
