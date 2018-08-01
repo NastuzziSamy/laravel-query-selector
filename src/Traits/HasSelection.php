@@ -193,5 +193,7 @@ Trait HasSelection {
 
         if ($collection->count() === 0 && !($this->selectionCanBeEmpty ?? false))
             throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);
+
+        return $collection;
     }
 }

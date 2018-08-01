@@ -126,6 +126,9 @@ Output:
 ```
 
 ## Changelog
+### v1.3.1
+- Forget to return $collection...
+
 ### v1.3.0
 - Add a restriction to the result: the selection must return at least one item or throw an error
 - This behavior can be changed by setting the `selectionCanBeEmpty` property
