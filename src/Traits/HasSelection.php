@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
-use NastuzziSamy\LaravelSelectionExceptions\SelectionException;
+use NastuzziSamy\Laravel\Exceptions\SelectionException;
 
 /**
  * This trait add multiple scopes into model class
@@ -171,10 +171,10 @@ Trait HasSelection {
                 );
             }
 
-            if (isset($this->$selector['paginate'])) { // Must be treated at last
+            if (in_array('paginate', array_keys($this->selection))) { // Must be treated at last
                 return $this->scopePaginate(
                     $query,
-                    \Request::input('paginate', $this->$selector['paginate'])
+                    \Request::input('paginate', $this->selection['paginate'])
                 );
             }
         }

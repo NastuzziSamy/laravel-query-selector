@@ -126,6 +126,10 @@ Output:
 ```
 
 ## Changelog
+### v1.3.2
+- Too tired to push ?
+- Fix a lot of bugs and misspells
+
 ### v1.3.1
 - Forget to return $collection...
 
