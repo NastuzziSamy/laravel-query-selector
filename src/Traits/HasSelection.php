@@ -142,22 +142,34 @@ Trait HasSelection {
      */
     public function scopeSelect(Builder $query) {
         if ($this->selection) {
-            foreach ($this->selection as $selection => $default) {
-                $param = \Request::input($selection, $default);
+            $dateSelection = false;
+            $dataSelectors = [
+                'day', 'week', 'month', 'year',
+            ];
 
-                if ($selection === 'paginate' || $param === null) // Paginate returns a collection
+            foreach ($this->selection as $selector => $default) {
+                $param = \Request::input($selector, $default);
+
+                if ($selector === 'paginate' || $param === null) // Paginate returns a collection
                     continue;
 
-                $query = $this->{'scope'.ucfirst($selection)}(
+                if (in_array($selector, $dataSelectors) && ($this->uniqueDateSelector ?? true)) {
+                    if ($dataSelection)
+                        continue;
+
+                    $dateSelection = true;
+                }
+
+                $query = $this->{'scope'.ucfirst($selector)}(
                     $query,
                     $param
                 );
             }
 
-            if (isset($this->selection['paginate'])) { // Must be treated at last
+            if (isset($this->$selector['paginate'])) { // Must be treated at last
                 return $this->scopePaginate(
                     $query,
-                    \Request::input('paginate', $this->selection['paginate'])
+                    \Request::input('paginate', $this->$selector['paginate'])
                 );
             }
         }

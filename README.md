@@ -122,3 +122,11 @@ Output:
     },
 ]
 ```
+
+## Changelog
+### v1.1.0
+- Add one date selector restriction: avoid from setting multiple date restrictions
+- Advice:
+    * Define in the `selection` array optional params first
+    * Define a unique date selector with a default value
+    * Put in first which date restriction should be concidered first
