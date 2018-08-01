@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
+use NastuzziSamy\LaravelSelectionExceptions\SelectionException;
+
 /**
  * This trait add multiple scopes into model class
  * They are all usable directly by calling them (withtout the "scope" behind) when querying for items
@@ -33,7 +35,7 @@ Trait HasSelection {
      */
     public function scopePaginate(Builder $query, int $number) {
         if ($this->paginateLimit && $this->paginateLimit < $number)
-            throw new \Exception('Only '.$this->paginateLimit.' items could be displayed in the same time');
+            throw new SelectionException('Only '.$this->paginateLimit.' items could be displayed in the same time');
 
         return $query->paginate($number);
     }
@@ -56,7 +58,7 @@ Trait HasSelection {
         ];
 
         if (!isset($orders[$order]))
-            throw new \Exception('This order '.$order.' does not exist. Only `latest`, `oldest` and `random` are allowed');
+            throw new SelectionException('This order '.$order.' does not exist. Only `latest`, `oldest` and `random` are allowed');
 
         if ($order === 'random')
             return $query->inRandomOrder();
@@ -155,7 +157,7 @@ Trait HasSelection {
 
                 if (in_array($selector, $dataSelectors) && ($this->uniqueDateSelector ?? true)) {
                     if ($dataSelection)
-                        throw new \Exception('Can\'t set the selector '.$selector.' after the selector '.$dateSelection);
+                        throw new SelectionException('Can\'t set the selector '.$selector.' after the selector '.$dateSelection);
 
                     $dateSelection = $selector;
                 }

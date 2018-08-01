@@ -124,6 +124,10 @@ Output:
 ```
 
 ## Changelog
+### v1.2.0
+- Add a custom Exception: SelectionException
+- The developer can now know if a problem happened during the selection
+
 ### v1.1.1
 - Throw now an Exception if the user tries to set mutiple date restrictions
 
