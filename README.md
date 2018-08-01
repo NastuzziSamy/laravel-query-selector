@@ -23,6 +23,8 @@ To work correctly, the developer must define at least this property:
 
 It is also possible to customize these properties:
 - `paginateLimit` is the max amount of items in a page
+- `uniqueDateSelector` specify if it is possible to have multiple date selectors (default: false)
+- `selectionCanBeEmpty` specify if it is possible to have empty selections (default: false)
 - `order_by` is the column name to use to order
 - `begin_at` is the column name for the date of begining
 - `end_at` is the column name for the date of ending
@@ -124,6 +126,11 @@ Output:
 ```
 
 ## Changelog
+### v1.3.0
+- Add a restriction to the result: the selection must return at least one item or throw an error
+- This behavior can be changed by setting the `selectionCanBeEmpty` property
+- SelectionException is now an HttpException (from Symfony)
+
 ### v1.2.2
 - Correct wrong variable names..
 

@@ -189,10 +189,9 @@ Trait HasSelection {
      */
     public function scopeGetSelection(Builder $query) {
         $selection = $this->scopeSelect($query);
+        $collection = $selection instanceof Builder ? $selection->get() : $selection;
 
-        if ($selection instanceof Builder)
-            return $selection->get();
-        else
-            return $selection;
+        if ($collection->count() === 0 && !($this->selectionCanBeEmpty ?? false))
+            throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);
     }
 }
