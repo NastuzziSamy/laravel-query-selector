@@ -21,7 +21,7 @@ use NastuzziSamy\LaravelSelectionExceptions\SelectionException;
  *
  * It is also possible to customize these properties:
  *  - `paginateLimit` is the max amount of items in a page
- *  - `created_at` is the column name for the date creation
+ *  - `order_by` is the column name for the date creation
  *  - `begin_at` is the column name for the date of begining
  *  - `end_at` is the column name for the date of ending
  */
@@ -64,7 +64,7 @@ Trait HasSelection {
             return $query->inRandomOrder();
         else {
             return $query->{$orders[$order]}(
-                $this->created_at ?? 'created_at'
+                $this->order_by ?? 'created_at'
             );
         }
     }
@@ -156,6 +156,9 @@ Trait HasSelection {
                     continue;
 
                 if (in_array($selector, $dataSelectors) && ($this->uniqueDateSelector ?? true)) {
+                    if (!\Request::filled($selector))
+                        continue;
+
                     if ($dataSelection)
                         throw new SelectionException('Can\'t set the selector '.$selector.' after the selector '.$dateSelection);
 

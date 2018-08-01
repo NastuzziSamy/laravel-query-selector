@@ -23,7 +23,7 @@ To work correctly, the developer must define at least this property:
 
 It is also possible to customize these properties:
 - `paginateLimit` is the max amount of items in a page
-- `created_at` is the column name for the date creation
+- `order_by` is the column name to use to order
 - `begin_at` is the column name for the date of begining
 - `end_at` is the column name for the date of ending
 
@@ -124,6 +124,10 @@ Output:
 ```
 
 ## Changelog
+### v1.2.1
+- Setting a default value for a date could create unexpected Exceptions
+- Change `created_at` to `order_by`
+
 ### v1.2.0
 - Add a custom Exception: SelectionException
 - The developer can now know if a problem happened during the selection
