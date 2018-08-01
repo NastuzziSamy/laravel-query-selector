@@ -79,7 +79,7 @@ Let think we got 11 users, the 11th is the latest
 
 Output:
 ```json
-{
+[
     {
         "id": 11,
         "name": "11"
@@ -100,14 +100,14 @@ Output:
         "id": 7,
         "name": "7"
     },
-}
+]
 ```
 
 ### Example 2: request /api/users?paginate=3&order=random
 
 Output:
 ```json
-{
+[
     {
         "id": 4,
         "name": "4"
@@ -120,5 +120,5 @@ Output:
         "id": 3,
         "name": "3"
     },
-}
+]
 ```
