@@ -125,9 +125,132 @@ Output:
 ]
 ```
 
+### Custom: You can also use your custom scopes !!
+
+If you have installed the `nastuzzi-samy\laravel-model-stages` for example
+
+#### Usage example
+
+In your targeted model:
+```php
+<?php
+
+namespace \App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use NastuzziSamy\Laravel\Traits\HasSelection;
+use NastuzziSamy\Laravel\Traits\HasStages;
+
+class User extends Model {
+    use HasSelection, HasStages;
+
+    protectec $selection = [
+        'stage' => null,
+        'stages' => null,
+        'order' => 'oldest',
+    ];
+
+    /* ... */
+}
+```
+
+In your targeted controller:
+```php
+<?php
+
+namespace \App\Http\Controllers;
+
+use Illuminate\Routing\Controller;
+use App\Models\User;
+
+class UserController extends Controller {
+    /* ... */
+
+    public function index($request) {
+        return response->json(
+            User::getSelecion()
+        );
+    }
+
+    /* ... */
+}
+```
+
+Let think we got a company tree with 1 Boss, 2 Supervisors and 4 Employees
+
+### Example 1: request /api/users?stage=0
+
+Output:
+```json
+[
+    {
+        "id": 1,
+        "name": "Boss",
+        "parent_id": null
+    },
+]
+```
+
+### Example 2: request /api/users?stage=0,1
+
+Output:
+```json
+[
+    {
+        "id": 1,
+        "name": "Boss",
+        "parent_id": null
+    },
+    {
+        "id": 2,
+        "name": "Supervisor 1",
+        "parent_id": 1
+    },
+    {
+        "id": 3,
+        "name": "Supervisor 2",
+        "parent_id": 1
+    },
+]
+```
+
+### Example 3: request /api/users?stage=2&order=random
+
+Output:
+```json
+[
+    {
+        "id": 6,
+        "name": "Employee 3",
+        "parent_id": 3
+    },
+    {
+        "id": 4,
+        "name": "Employee 1",
+        "parent_id": 2
+    },
+    {
+        "id": 7,
+        "name": "Employee 4",
+        "parent_id": 3
+    },
+    {
+        "id": 5,
+        "name": "Employee 2",
+        "parent_id": 2
+    },
+]
+```
+
+
+
 ## Changelog
+### v1.3.3
+- Add multiple params
+- Custom scopes are usable
+
 ### v1.3.2
-- Too tired to push ?
+- Too late/tired to push ?
 - Fix a lot of bugs and misspells
 
 ### v1.3.1

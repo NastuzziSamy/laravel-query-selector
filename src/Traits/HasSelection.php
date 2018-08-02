@@ -2,7 +2,6 @@
 
 namespace NastuzziSamy\Laravel\Traits;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
@@ -167,8 +166,11 @@ Trait HasSelection {
 
                 $query = $this->{'scope'.ucfirst($selector)}(
                     $query,
-                    $param
+                    ...explode(',', $param)
                 );
+
+                if (!($query instanceof Builder)) // In case where a selector returns a data directly
+                    return $query;
             }
 
             if (in_array('paginate', array_keys($this->selection))) { // Must be treated at last
@@ -191,7 +193,7 @@ Trait HasSelection {
         $selection = $this->scopeSelect($query);
         $collection = $selection instanceof Builder ? $selection->get() : $selection;
 
-        if ($collection->count() === 0 && !($this->selectionCanBeEmpty ?? false))
+        if ((is_null($collection) || count($collection) === 0) && !($this->selectionCanBeEmpty ?? false))
             throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);
 
         return $collection;
