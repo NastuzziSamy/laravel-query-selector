@@ -62,7 +62,7 @@ Trait HasSelection {
             return $query->inRandomOrder();
         else {
             return $query->{$orders[$order]}(
-                $this->order_by ?? 'created_at'
+                $this->getTable().'.'.($this->order_by ?? 'created_at')
             );
         }
     }
@@ -79,8 +79,8 @@ Trait HasSelection {
      */
     public function scopeDay(Builder $query, $date) {
         return $query
-            ->where($this->begin_at ?? 'created_at', '>=', Carbon::parse($date))
-            ->where($this->end_at ?? 'created_at', '<=', Carbon::parse($date)->addDay());
+            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', Carbon::parse($date))
+            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', Carbon::parse($date)->addDay());
     }
 
     public function scopeGetDay(Builder $query, $date) {
@@ -95,8 +95,8 @@ Trait HasSelection {
      */
     public function scopeWeek(Builder $query, $date) {
         return $query
-            ->where($this->begin_at ?? 'created_at', '>=', Carbon::parse($date))
-            ->where($this->end_at ?? 'created_at', '<=', Carbon::parse($date)->addWeek());
+            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', Carbon::parse($date))
+            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', Carbon::parse($date)->addWeek());
     }
 
     public function scopeGetWeek(Builder $query, $date) {
@@ -111,8 +111,8 @@ Trait HasSelection {
      */
     public function scopeMonth(Builder $query, $date) {
         return $query
-            ->where($this->begin_at ?? 'created_at', '>=', Carbon::parse($date))
-            ->where($this->end_at ?? 'created_at', '<=', Carbon::parse($date)->addMonth());
+            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', Carbon::parse($date))
+            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', Carbon::parse($date)->addMonth());
     }
 
     public function scopeGetMonth(Builder $query, $date) {
@@ -127,8 +127,8 @@ Trait HasSelection {
      */
     public function scopeYear(Builder $query, $date) {
         return $query
-            ->where($this->begin_at ?? 'created_at', '>=', Carbon::parse($date))
-            ->where($this->end_at ?? 'created_at', '<=', Carbon::parse($date)->addYear());
+            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', Carbon::parse($date))
+            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', Carbon::parse($date)->addYear());
     }
 
     public function scopeGetYear($query, $date) {
@@ -192,11 +192,11 @@ Trait HasSelection {
      * @param  Builder $query
      * @return Collection
      */
-    public function scopeGetSelection(Builder $query) {
+    public function scopeGetSelection(Builder $query, bool $allowEmptySelection = false) {
         $selection = $this->scopeSelect($query);
         $collection = $selection instanceof Builder ? $selection->get() : $selection;
 
-        if ((is_null($collection) || count($collection) === 0) && !($this->selectionCanBeEmpty ?? false))
+        if ((is_null($collection) || count($collection) === 0) && !(($this->selectionCanBeEmpty ?? false) || $allowEmptySelection))
             throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);
 
         return $collection;

@@ -245,6 +245,9 @@ Output:
 
 
 ## Changelog
+### v1.3.5
+- Allowing empty values directly in `getSelection`
+
 ### v1.3.4
 - Bug when paginate was null
 
