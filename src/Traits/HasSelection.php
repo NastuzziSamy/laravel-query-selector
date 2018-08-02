@@ -4,7 +4,6 @@ namespace NastuzziSamy\Laravel\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
-
 use NastuzziSamy\Laravel\Exceptions\SelectionException;
 
 /**
@@ -164,16 +163,20 @@ Trait HasSelection {
                     $dateSelection = $selector;
                 }
 
-                $query = $this->{'scope'.ucfirst($selector)}(
-                    $query,
-                    ...explode(',', $param)
-                );
+                try {
+                    $query = $this->{'scope'.ucfirst($selector)}(
+                        $query,
+                        ...explode(',', $param)
+                    );
+                } catch (\Error $e) {
+                    throw new SelectionException('More parameters (spaced by `,`) are expected for the selector '.$selector);
+                }
 
                 if (!($query instanceof Builder)) // In case where a selector returns a data directly
                     return $query;
             }
 
-            if (in_array('paginate', array_keys($this->selection))) { // Must be treated at last
+            if (in_array('paginate', array_keys($this->selection)) && $this->selection['paginate']) { // Must be treated at last
                 return $this->scopePaginate(
                     $query,
                     \Request::input('paginate', $this->selection['paginate'])

@@ -245,6 +245,9 @@ Output:
 
 
 ## Changelog
+### v1.3.4
+- Bug when paginate was null
+
 ### v1.3.3
 - Add multiple params
 - Custom scopes are usable
