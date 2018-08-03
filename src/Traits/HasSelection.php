@@ -3,6 +3,7 @@
 namespace NastuzziSamy\Laravel\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Carbon\Carbon;
 use NastuzziSamy\Laravel\Exceptions\SelectionException;
 
@@ -176,11 +177,11 @@ Trait HasSelection {
                     return $query;
             }
 
-            if (in_array('paginate', array_keys($this->selection)) && $this->selection['paginate']) { // Must be treated at last
-                return $this->scopePaginate(
+            if (in_array('paginate', array_keys($this->selection)) && \Request::input('paginate', $this->selection['paginate'])) { // Must be treated at last
+                return new Collection($this->scopePaginate(
                     $query,
                     \Request::input('paginate', $this->selection['paginate'])
-                );
+                )->items());
             }
         }
 

@@ -245,6 +245,9 @@ Output:
 
 
 ## Changelog
+### 1.3.6
+- Correct pagination return
+
 ### v1.3.5
 - Allowing empty values directly in `getSelection`
 
