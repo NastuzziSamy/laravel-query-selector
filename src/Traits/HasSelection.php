@@ -73,67 +73,148 @@ Trait HasSelection {
     }
 
     /**
-     * Show items within the day given
+     * Show items happened during the given date
      * @param  Builder $query
      * @param          $date    must be compatible with Carbon or an Exception will be thrown
      * @return Builder
      */
-    public function scopeDay(Builder $query, $date) {
+    public function scopeDate(Builder $query, $date, string $format = null) {
+        $carbonDate = DateParsing::parse($date, $format);
+        $carbonDate->hour = 0;
+        $carbonDate->minute = 0;
+        $carbonDate->second = 0;
+
         return $query
-            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', Carbon::parse($date))
-            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', Carbon::parse($date)->addDay());
+            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
+            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addDay());
     }
 
-    public function scopeGetDay(Builder $query, $date) {
-        return $this->scopeDay($query, $date)->get();
+    public function scopeGetDate(Builder $query, $date, string $format = null) {
+        return $this->scopeDay($query, $date, $format)->get();
     }
 
     /**
-     * Show items within the week given
+     * Show items happened during one of the given date
      * @param  Builder $query
      * @param          $date    must be compatible with Carbon or an Exception will be thrown
      * @return Builder
      */
-    public function scopeWeek(Builder $query, $date) {
-        return $query
-            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', Carbon::parse($date))
-            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', Carbon::parse($date)->addWeek());
+    public function scopeDates(Builder $query, ...$dates) {
+        $format = end($dates); // Last element must be a date format
+        unset($dates[count($dates) - 1]);
+
+        return $query->where(function ($query) use ($dates) {
+            foreach ($dates as $date) {
+                $carbonDate = DateParsing::parse($date, $format);
+                $carbonDate->hour = 0;
+                $carbonDate->minute = 0;
+                $carbonDate->second = 0;
+
+                $query = $query->orWhere(function ($query) use ($carbonDate) {
+                    return $query
+                        ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
+                        ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addDay());
+                });
+            }
+
+            return $query;
+        });
     }
 
-    public function scopeGetWeek(Builder $query, $date) {
-        return $this->scopeWeek($query, $date)->get();
+    public function scopeGetDates(Builder $query, ...$dates) {
+        return $this->scopeDay($query, $dates)->get();
     }
 
     /**
-     * Show items within the month given
+     * Show items within the given interval
      * @param  Builder $query
      * @param          $date    must be compatible with Carbon or an Exception will be thrown
      * @return Builder
      */
-    public function scopeMonth(Builder $query, $date) {
+    public function scopeInterval(Builder $query, $date1, $date2, string $format = null) {
+        list($carbonDate1, $carbonDate2) = DateParsing::interval($date1, $date2, $format, $format);
+
         return $query
-            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', Carbon::parse($date))
-            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', Carbon::parse($date)->addMonth());
+            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate1)
+            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate2);
     }
 
-    public function scopeGetMonth(Builder $query, $date) {
-        return $this->scopeMonth($query, $date)->get();
+    public function scopeGetInterval(Builder $query, $date1, $date2, string $format = null) {
+        return $this->scopeDay($query, $date1, $date2, $format)->get();
+    }
+
+    // Group by
+
+    /**
+     * Show items within the given day
+     * @param  Builder $query
+     * @param          $date    must be compatible with Carbon or an Exception will be thrown
+     * @return Builder
+     */
+    public function scopeDay(Builder $query, $date, string $format = null) {
+        $carbonDate = DateParsing::parse($date, $format);
+
+        return $query
+            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
+            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addDay());
+    }
+
+    public function scopeGetDay(Builder $query, $date, string $format = null) {
+        return $this->scopeDay($query, $date, $format)->get();
     }
 
     /**
-     * Show items within the year given
+     * Show items within the given week
      * @param  Builder $query
      * @param          $date    must be compatible with Carbon or an Exception will be thrown
      * @return Builder
      */
-    public function scopeYear(Builder $query, $date) {
+    public function scopeWeek(Builder $query, $date, string $format = null) {
+        $carbonDate = DateParsing::parse($date, $format);
+
         return $query
-            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', Carbon::parse($date))
-            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', Carbon::parse($date)->addYear());
+            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
+            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addWeek());
+    }
+
+    public function scopeGetWeek(Builder $query, $date, string $format = null) {
+        return $this->scopeWeek($query, $date, $format)->get();
+    }
+
+    /**
+     * Show items within the given month
+     * @param  Builder $query
+     * @param          $date    must be compatible with Carbon or an Exception will be thrown
+     * @return Builder
+     */
+    public function scopeMonth(Builder $query, $date, string $format = null) {
+        $carbonDate = DateParsing::parse($date, $format);
+
+        return $query
+            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
+            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addMonth());
+    }
+
+    public function scopeGetMonth(Builder $query, $date, string $format = null) {
+        return $this->scopeMonth($query, $date, $format)->get();
+    }
+
+    /**
+     * Show items within the given year
+     * @param  Builder $query
+     * @param          $date    must be compatible with Carbon or an Exception will be thrown
+     * @return Builder
+     */
+    public function scopeYear(Builder $query, $date, string $format = null) {
+        $carbonDate = DateParsing::parse($date, $format);
+
+        return $query
+            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
+            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addYear());
     }
 
     public function scopeGetYear($query, $date) {
-        return $this->scopeYear($query, $date)->get();
+        return $this->scopeYear($query, $date, $format)->get();
     }
 
     /**

@@ -245,6 +245,15 @@ Output:
 
 
 ## Changelog
+### 1.4.0
+- Bug fix: timestamp dates where not recognized
+- DateParsing class created to simplify date transformation to Carbon date
+- Each date selector accept a new parameter: the date format (by default, Carbon will try to resolve the date by parsing it)
+- Add new selectors:
+    - Date: get items happened in this date, and only this one
+    - Dates: get items happened in one of the dates (the last argument must be a date format)
+    - Interval: get items within the interval
+
 ### 1.3.6
 - Correct pagination return
 
