@@ -11,20 +11,33 @@ use NastuzziSamy\Laravel\Utils\DateParsing;
  * This trait add multiple scopes into model class
  * They are all usable directly by calling them (withtout the "scope" behind) when querying for items
  *
- * To work correctly, the developer must define at least this property:
+ * To work correctly, the developer must define this property:
  *  - `selection` as a key/value array
  *      => the developer defines as selectors as (s)he wants, but a selector is only usable if it is defined as key
  *      => each key is a selector: paginate, week, order...
- *      => each value corresponds to a default value for the selector
- *      => if a value is `null`, this means that the selector is optional
- *
- * It is also possible to customize these properties:
- *  - `paginateLimit` is the max amount of items in a page
- *  - `order_by` is the column name for the date creation
- *  - `begin_at` is the column name for the date of begining
- *  - `end_at` is the column name for the date of ending
+ *      => each value can be
+ *          - a simple value (which is treated as like a default value)
+ *          - an array with (if needed) a `default` key. Next, each selector as its column params
+ *      => if the default value is `null` or it is not defined if the array, this means that the selector is optional
  */
 Trait HasSelection {
+    private function getSelectionOption(string $key, $default = null) {
+        if (isset($this->selection)) {
+            $value = $this->selection;
+
+            foreach (explode('.', $key) as $name) {
+                if (!isset($value[$name]))
+                    return $default;
+
+                $value = $value[$name];
+            }
+
+            return $value;
+        }
+        else
+            return $default;
+    }
+
     /**
      * Paginate items by number of `number`
      * Auto manage page argument
@@ -33,8 +46,10 @@ Trait HasSelection {
      * @return Collection
      */
     public function scopePaginate(Builder $query, int $number) {
-        if ($this->paginateLimit && $this->paginateLimit < $number)
-            throw new SelectionException('Only '.$this->paginateLimit.' items could be displayed in the same time');
+        $limit = $this->getSelectionOption('paginate.limit');
+
+        if ($limit && $limit < $number)
+            throw new SelectionException('Only '.$limit.' items could be displayed in the same time');
 
         return $query->paginate($number);
     }
@@ -57,22 +72,22 @@ Trait HasSelection {
         switch ($order) {
             case 'latest':
                 return $query->latest(
-                    $this->getTable().'.'.($this->order_by ?? 'created_at')
+                    $this->getTable().'.'.$this->getSelectionOption('order.columns.date', 'created_at')
                 );
 
             case 'oldest':
                 return $query->oldest(
-                    $this->getTable().'.'.($this->order_by ?? 'created_at')
+                    $this->getTable().'.'.$this->getSelectionOption('order.columns.date', 'created_at')
                 );
 
             case 'random':
                 return $query->inRandomOrder();
 
             case 'a-z':
-                return $query->orderBy($this->name ?? 'name', 'asc');
+                return $query->orderBy($this->getSelectionOption('order.columns.name', 'name'), 'asc');
 
             case 'z-a':
-                return $query->orderBy($this->name ?? 'name', 'desc');
+                return $query->orderBy($this->getSelectionOption('order.columns.name', 'name'), 'desc');
         }
 
         throw new SelectionException('This order '.$order.' does not exist. Only `'.implode('`, `', $orders).'` are allowed');
@@ -95,8 +110,8 @@ Trait HasSelection {
         $carbonDate->second = 0;
 
         return $query
-            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
-            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addDay());
+            ->where($this->getTable().'.'.$this->getSelectionOption('date.columns.begin', 'created_at'), '>=', $carbonDate)
+            ->where($this->getTable().'.'.$this->getSelectionOption('date.columns.end', 'created_at'), '<=', $carbonDate->copy()->addDay());
     }
 
     public function scopeGetDate(Builder $query, $date, string $format = null) {
@@ -122,8 +137,8 @@ Trait HasSelection {
 
                 $query = $query->orWhere(function ($query) use ($carbonDate) {
                     return $query
-                        ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
-                        ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addDay());
+                        ->where($this->getTable().'.'.$this->getSelectionOption('dates.columns.begin', 'created_at'), '>=', $carbonDate)
+                        ->where($this->getTable().'.'.$this->getSelectionOption('dates.columns.end', 'created_at'), '<=', $carbonDate->copy()->addDay());
                 });
             }
 
@@ -145,8 +160,8 @@ Trait HasSelection {
         list($carbonDate1, $carbonDate2) = DateParsing::interval($date1, $date2, $format, $format);
 
         return $query
-            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate1)
-            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate2);
+            ->where($this->getTable().'.'.$this->getSelectionOption('interval.columns.begin', 'created_at'), '>=', $carbonDate1)
+            ->where($this->getTable().'.'.$this->getSelectionOption('interval.columns.end', 'created_at'), '<=', $carbonDate2);
     }
 
     public function scopeGetInterval(Builder $query, $date1, $date2, string $format = null) {
@@ -165,8 +180,8 @@ Trait HasSelection {
         $carbonDate = DateParsing::parse($date, $format);
 
         return $query
-            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
-            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addDay());
+            ->where($this->getTable().'.'.$this->getSelectionOption('day.columns.begin', 'created_at'), '>=', $carbonDate)
+            ->where($this->getTable().'.'.$this->getSelectionOption('day.columns.end', 'created_at'), '<=', $carbonDate->copy()->addDay());
     }
 
     public function scopeGetDay(Builder $query, $date, string $format = null) {
@@ -183,8 +198,8 @@ Trait HasSelection {
         $carbonDate = DateParsing::parse($date, $format);
 
         return $query
-            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
-            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addWeek());
+            ->where($this->getTable().'.'.$this->getSelectionOption('week.columns.begin', 'created_at'), '>=', $carbonDate)
+            ->where($this->getTable().'.'.$this->getSelectionOption('week.columns.end', 'created_at'), '<=', $carbonDate->copy()->addWeek());
     }
 
     public function scopeGetWeek(Builder $query, $date, string $format = null) {
@@ -201,8 +216,8 @@ Trait HasSelection {
         $carbonDate = DateParsing::parse($date, $format);
 
         return $query
-            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
-            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addMonth());
+            ->where($this->getTable().'.'.$this->getSelectionOption('month.columns.begin', 'created_at'), '>=', $carbonDate)
+            ->where($this->getTable().'.'.$this->getSelectionOption('month.columns.end', 'created_at'), '<=', $carbonDate->copy()->addMonth());
     }
 
     public function scopeGetMonth(Builder $query, $date, string $format = null) {
@@ -219,8 +234,8 @@ Trait HasSelection {
         $carbonDate = DateParsing::parse($date, $format);
 
         return $query
-            ->where($this->getTable().'.'.($this->begin_at ?? 'created_at'), '>=', $carbonDate)
-            ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addYear());
+            ->where($this->getTable().'.'.$this->getSelectionOption('year.columns.begin', 'created_at'), '>=', $carbonDate)
+            ->where($this->getTable().'.'.$this->getSelectionOption('year.columns.end', 'created_at'), '<=', $carbonDate->copy()->addYear());
     }
 
     public function scopeGetYear($query, $date, string $format = null) {
@@ -240,9 +255,9 @@ Trait HasSelection {
             ];
 
             foreach ($this->selection as $selector => $default) {
-                $param = \Request::input($selector, $default);
+                $params = \Request::input($selector, is_array($default) ? $this->getSelectionOption($selector.'.default') : $default);
 
-                if ($selector === 'paginate' || $param === null) // Paginate returns a collection
+                if ($selector === 'paginate' || $params === null) // Paginate returns a collection
                     continue;
 
                 if (in_array($selector, $dateSelectors) && ($this->uniqueDateSelector ?? true)) {
@@ -256,10 +271,21 @@ Trait HasSelection {
                 }
 
                 try {
-                    $query = $this->{'scope'.ucfirst($selector)}(
-                        $query,
-                        ...explode(',', $param)
-                    );
+                    if (is_array($params)) {
+                        foreach ($params as $key => $param) {
+                            $query = $this->{'scope'.ucfirst($selector)}(
+                                $query,
+                                $key,
+                                ...(is_array($param) ? $param : explode(',', $param))
+                            );
+                        }
+                    }
+                    else {
+                        $query = $this->{'scope'.ucfirst($selector)}(
+                            $query,
+                            ...(is_array($params) ? $params : explode(',', $params))
+                        );
+                    }
                 } catch (\Error $e) {
                     throw new SelectionException('More parameters (spaced by `,`) are expected for the selector '.$selector);
                 }
@@ -268,11 +294,16 @@ Trait HasSelection {
                     return $query;
             }
 
-            if (in_array('paginate', array_keys($this->selection)) && \Request::input('paginate', $this->selection['paginate'])) { // Must be treated at last
-                return new Collection($this->scopePaginate(
-                    $query,
-                    \Request::input('paginate', $this->selection['paginate'])
-                )->items());
+            if (in_array('paginate', array_keys($this->selection))) {
+                $default = $this->selection['paginate'];
+                $param = \Request::input('paginate', is_array($default) ? $this->getSelectionOption('paginate.default') : $default);
+
+                if ($param) { // Must be treated at last
+                    return new Collection($this->scopePaginate(
+                        $query,
+                        \Request::input('paginate', $this->selection['paginate'])
+                    )->items());
+                }
             }
         }
 

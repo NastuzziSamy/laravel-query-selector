@@ -14,20 +14,14 @@ composer require NastuzziSamy/laravel-query-selector
 This trait add multiple scopes into model class
 They are all usable directly by calling them (withtout the "scope" behind) when querying for items
 
-To work correctly, the developer must define at least this property:
+To work correctly, the developer must define this property:
 - `selection` as a key/value array
-    * the developer defines as selectors as (s)he wants, but a selector is only usable if it is defined as key
-    * each key is a selector: paginate, week, order...
-    * each value corresponds to a default value for the selector
-    * if a value is `null`, this means that the selector is optional
-
-It is also possible to customize these properties:
-- `paginateLimit` is the max amount of items in a page
-- `uniqueDateSelector` specify if it is possible to have multiple date selectors (default: false)
-- `selectionCanBeEmpty` specify if it is possible to have empty selections (default: false)
-- `order_by` is the column name to use to order
-- `begin_at` is the column name for the date of begining
-- `end_at` is the column name for the date of ending
+  => the developer defines as selectors as (s)he wants, but a selector is only usable if it is defined as key
+  => each key is a selector: paginate, week, order...
+  => each value can be
+    - a simple value (which is treated as like a default value)
+    - an array with (if needed) a `default` key. Next, each selector as its column params
+  => if the default value is `null` or it is not defined if the array, this means that the selector is optional
 
 ## Usage
 
@@ -45,8 +39,13 @@ class User extends Model {
 
     // Example of selection definition
     protected $selection = [
-        'paginate'  => 2, // 2 users per page
-        'order'     => 'latest'
+        'paginate'  => 2, // 2 users per page by default
+        'order'     => [
+            'default' => 'latest',
+            'columns' => [
+                'creation'  => 'id' // We set our column to order our data
+            ]
+        ]
     ];
 
     /* ... */
@@ -145,8 +144,8 @@ class User extends Model {
     use HasSelection, HasStages;
 
     protectec $selection = [
-        'stage' => null,
-        'stages' => null,
+        'stage' => null, // Optional selector because default value is null
+        'stages' => [], // Array option but no default value
         'order' => 'oldest',
     ];
 
@@ -245,6 +244,12 @@ Output:
 
 
 ## Changelog
+### 2.0.0
+- Refactoring of all parameters (could break from v1)
+- Implement and adapt to array queries for a future feature
+    * ex: `?filter[x]=0&filter[y]=1`
+    * The scope is called for each (x and y) and give the params: `x, 0` and `y, 1`
+
 ### 1.4.1
 - It is now possible to order by alpha
 - DateParsing dependancy missing
