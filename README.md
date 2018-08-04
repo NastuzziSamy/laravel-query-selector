@@ -245,6 +245,10 @@ Output:
 
 
 ## Changelog
+### 1.4.1
+- It is now possible to order by alpha
+- DateParsing dependancy missing
+
 ### 1.4.0
 - Bug fix: timestamp dates where not recognized
 - DateParsing class created to simplify date transformation to Carbon date

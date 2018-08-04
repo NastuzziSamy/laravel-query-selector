@@ -4,8 +4,8 @@ namespace NastuzziSamy\Laravel\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Carbon\Carbon;
 use NastuzziSamy\Laravel\Exceptions\SelectionException;
+use NastuzziSamy\Laravel\Utils\DateParsing;
 
 /**
  * This trait add multiple scopes into model class
@@ -46,26 +46,36 @@ Trait HasSelection {
     /**
      * Set a precise order
      * @param  Builder $query
-     * @param  string  $order enum of `latest`, `oldest` and `random`
+     * @param  string  $order enum of `latest`, `oldest`, `random`, `a-z`, `z-a`
      * @return Builder
      */
     public function scopeOrder(Builder $query, string $order) {
         $orders = [
-            'latest'    => 'latest',
-            'oldest'    => 'oldest',
-            'random'    => 'inRandomOrder'
+            'latest', 'oldest', 'random', 'a-z', 'z-a',
         ];
 
-        if (!isset($orders[$order]))
-            throw new SelectionException('This order '.$order.' does not exist. Only `latest`, `oldest` and `random` are allowed');
+        switch ($order) {
+            case 'latest':
+                return $query->latest(
+                    $this->getTable().'.'.($this->order_by ?? 'created_at')
+                );
 
-        if ($order === 'random')
-            return $query->inRandomOrder();
-        else {
-            return $query->{$orders[$order]}(
-                $this->getTable().'.'.($this->order_by ?? 'created_at')
-            );
+            case 'oldest':
+                return $query->oldest(
+                    $this->getTable().'.'.($this->order_by ?? 'created_at')
+                );
+
+            case 'random':
+                return $query->inRandomOrder();
+
+            case 'a-z':
+                return $query->orderBy($this->name ?? 'name', 'asc');
+
+            case 'z-a':
+                return $query->orderBy($this->name ?? 'name', 'desc');
         }
+
+        throw new SelectionException('This order '.$order.' does not exist. Only `'.implode('`, `', $orders).'` are allowed');
     }
 
     public function scopeGetOrder(Builder $query, string $order) {
@@ -213,7 +223,7 @@ Trait HasSelection {
             ->where($this->getTable().'.'.($this->end_at ?? 'created_at'), '<=', $carbonDate->copy()->addYear());
     }
 
-    public function scopeGetYear($query, $date) {
+    public function scopeGetYear($query, $date, string $format = null) {
         return $this->scopeYear($query, $date, $format)->get();
     }
 
