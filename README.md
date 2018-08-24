@@ -244,6 +244,9 @@ Output:
 
 
 ## Changelog
+### 2.1.1
+- Bug fix: ms timestamps was not accepted
+
 ### 2.1.0
 - Ading filter query to make researches
 
