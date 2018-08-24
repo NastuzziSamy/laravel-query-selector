@@ -97,6 +97,31 @@ Trait HasSelection {
         return $this->scopeOrder($query, $order)->get();
     }
 
+    public function scopeFilter(Builder $query, string $filter, ...$options) {
+        $value = $options[0];
+        unset($options[0]);
+
+        if (is_array($this->getSelectionOption('filter.authorized')) && !$this->getSelectionOption('filter.authorized.'.$filter))
+            throw new SelectionException('The filter '.$filter.' is not allowed');
+
+        $begin = in_array('begin', $options) ? '' : '%';
+        $end = in_array('end', $options) ? '' : '%';
+        $like = in_array('insensitive', $options) ? 'like' : 'like binary';
+
+        if (in_array('word', $options))
+            $value = explode(' ', $value);
+        else if (in_array('caracter', $options))
+            $value = str_split($value);
+
+        if (!is_array($value))
+            $value = [$value];
+
+        for ($i = 0; $i < count($value); $i++)
+            $query = $query->where($filter, $like, ($i === 0 ? $begin : '%').$value[$i].($i + 1 === count($value) ? $end : '%'));
+
+        return $query;
+    }
+
     /**
      * Show items happened during the given date
      * @param  Builder $query

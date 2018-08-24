@@ -244,6 +244,9 @@ Output:
 
 
 ## Changelog
+### 2.1.0
+- Ading filter query to make researches
+
 ### 2.0.0
 - Refactoring of all parameters (could break from v1)
 - Implement and adapt to array queries for a future feature
