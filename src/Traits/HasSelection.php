@@ -20,8 +20,8 @@ use NastuzziSamy\Laravel\Utils\DateParsing;
  *          - an array with (if needed) a `default` key. Next, each selector as its column params
  *      => if the default value is `null` or it is not defined if the array, this means that the selector is optional
  */
-Trait HasSelection {
-    private function getSelectionOption(string $key, $default = null) {
+trait HasSelection {
+    protected function getSelectionOption(string $key, $default = null) {
         if (isset($this->selection)) {
             $value = $this->selection;
 
@@ -280,7 +280,8 @@ Trait HasSelection {
             ];
 
             foreach ($this->selection as $selector => $default) {
-                $params = \Request::input($selector, is_array($default) ? $this->getSelectionOption($selector.'.default') : $default);
+                $defaultParams = is_array($default) ? $this->getSelectionOption($selector.'.default') : $default;
+                $params = \Request::input($selector) ?? $defaultParams;
 
                 if ($selector === 'paginate' || $params === null) // Paginate returns a collection
                     continue;
