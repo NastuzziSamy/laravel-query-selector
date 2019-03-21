@@ -366,11 +366,12 @@ trait HasSelection {
     /**
      * Show the first item matching the different selectors defined in the model
      * @param  Builder $query
+     * @param  mixed   $modelId
      * @return Collection
      */
-    public function scopeFindSelection(Builder $query, $id, bool $allowEmptySelection = false) {
-        $selection = $this->scopeSelect($query);
-        $model = $selection instanceof Builder ? $selection->find($id) : ($selection->find($id) ?? null);
+    public function scopeFindSelection(Builder $query, $modelId, bool $allowEmptySelection = false) {
+        $selection = $this->scopeSelect($query->where($this->getKeyName(), $modelId));
+        $model = ($selection->first() ?? null);
 
         if (is_null($model) && !(($this->selectionCanBeEmpty ?? false) || $allowEmptySelection))
             throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);

@@ -1,4 +1,7 @@
 # Changelog
+## 2.3.1
+- Fix find selection
+
 ## 2.3.0
 - Add new scopes: first and find selectors
 
