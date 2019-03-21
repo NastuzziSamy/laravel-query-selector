@@ -1,4 +1,7 @@
 # Changelog
+## 2.3.0
+- Add new scopes: first and find selectors
+
 ## 2.2.0
 - Change private methods to protected
 - Security issue: Avoid unfilled queries
