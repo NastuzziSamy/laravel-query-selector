@@ -97,10 +97,7 @@ trait HasSelection {
         return $this->scopeOrder($query, $order)->get();
     }
 
-    public function scopeFilter(Builder $query, string $filter, ...$options) {
-        $value = $options[0];
-        unset($options[0]);
-
+    public function scopeFilter(Builder $query, string $filter, string $value, ...$options) {
         if (is_array($this->getSelectionOption('filter.authorized')) && !$this->getSelectionOption('filter.authorized.'.$filter))
             throw new SelectionException('The filter '.$filter.' is not allowed');
 
