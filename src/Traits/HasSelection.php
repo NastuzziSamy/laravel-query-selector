@@ -336,7 +336,7 @@ trait HasSelection {
     /**
      * Show all items with the different selectors defined in the model
      * @param  Builder $query
-     * @return Collection
+     * @return Collection|null
      */
     public function scopeGetSelection(Builder $query, bool $allowEmptySelection = false) {
         $selection = $this->scopeSelect($query);
@@ -351,9 +351,9 @@ trait HasSelection {
     /**
      * Show the first item matching the different selectors defined in the model
      * @param  Builder $query
-     * @return Collection
+     * @return mixed
      */
-    public function scopeFirstSelection(Builder $query, bool $allowEmptySelection = false) {
+    public function scopeFirstSelection(Builder $query, bool $allowEmptySelection = true) {
         $selection = $this->scopeSelect($query);
         $model = $selection instanceof Builder ? $selection->first() : ($selection->first() ?? null);
 
@@ -367,9 +367,9 @@ trait HasSelection {
      * Show the first item matching the different selectors defined in the model
      * @param  Builder $query
      * @param  mixed   $modelId
-     * @return Collection
+     * @return mixed
      */
-    public function scopeFindSelection(Builder $query, $modelId, bool $allowEmptySelection = false) {
+    public function scopeFindSelection(Builder $query, $modelId, bool $allowEmptySelection = true) {
         $selection = $this->scopeSelect($query->where($this->getKeyName(), $modelId));
         $model = ($selection->first() ?? null);
 

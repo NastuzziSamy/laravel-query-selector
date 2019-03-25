@@ -1,4 +1,8 @@
 # Changelog
+## 2.3.2
+- Fix PHP Doc for find and first
+- By default, empty result is allowed for find and first 
+
 ## 2.3.1
 - Fix find selection
 
