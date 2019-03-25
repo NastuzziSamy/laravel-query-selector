@@ -336,7 +336,7 @@ trait HasSelection {
     /**
      * Show all items with the different selectors defined in the model
      * @param  Builder $query
-     * @return Collection|null
+     * @return Collection|false
      */
     public function scopeGetSelection(Builder $query, bool $allowEmptySelection = false) {
         $selection = $this->scopeSelect($query);
@@ -345,13 +345,13 @@ trait HasSelection {
         if ((is_null($collection) || count($collection) === 0) && !(($this->selectionCanBeEmpty ?? false) || $allowEmptySelection))
             throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);
 
-        return $collection;
+        return $collection ?? false;
     }
 
     /**
      * Show the first item matching the different selectors defined in the model
      * @param  Builder $query
-     * @return mixed
+     * @return mixed|false
      */
     public function scopeFirstSelection(Builder $query, bool $allowEmptySelection = true) {
         $selection = $this->scopeSelect($query);
@@ -360,14 +360,14 @@ trait HasSelection {
         if (is_null($model) && !(($this->selectionCanBeEmpty ?? false) || $allowEmptySelection))
             throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);
 
-        return $model;
+        return $model ?? false;
     }
 
     /**
      * Show the first item matching the different selectors defined in the model
      * @param  Builder $query
      * @param  mixed   $modelId
-     * @return mixed
+     * @return mixed|false
      */
     public function scopeFindSelection(Builder $query, $modelId, bool $allowEmptySelection = true) {
         $selection = $this->scopeSelect($query->where($this->getKeyName(), $modelId));
@@ -376,6 +376,6 @@ trait HasSelection {
         if (is_null($model) && !(($this->selectionCanBeEmpty ?? false) || $allowEmptySelection))
             throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);
 
-        return $model;
+        return $model ?? false;
     }
 }

@@ -1,7 +1,10 @@
 # Changelog
+## 2.3.3
+- Workaround to indicate an empty value as false (Laravel sends the Builder if the result is null so we now send false)
+
 ## 2.3.2
 - Fix PHP Doc for find and first
-- By default, empty result is allowed for find and first 
+- By default, empty result is allowed for find and first
 
 ## 2.3.1
 - Fix find selection
