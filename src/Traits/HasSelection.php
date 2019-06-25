@@ -294,9 +294,11 @@ trait HasSelection {
                 }
 
                 try {
+                    $method = 'scope'.ucfirst($selector);
+
                     if (is_array($params)) {
                         foreach ($params as $key => $param) {
-                            $query = $this->{'scope'.ucfirst($selector)}(
+                            $query = $this->$method(
                                 $query,
                                 $key,
                                 ...(is_array($param) ? $param : explode(',', $param))
@@ -304,13 +306,19 @@ trait HasSelection {
                         }
                     }
                     else {
-                        $query = $this->{'scope'.ucfirst($selector)}(
+                        $query = $this->$method(
                             $query,
                             ...(is_array($params) ? $params : explode(',', $params))
                         );
                     }
-                } catch (\Error $e) {
+                } catch (\BadMethodCallException $e) {
                     throw new SelectionException('More parameters (spaced by `,`) are expected for the selector '.$selector);
+                } catch (\InvalidArgumentException $e) {
+                    throw new SelectionException('Bad parameters were given for the selector '.$selector);
+                } catch (\Error $e) {
+                    throw new SelectionException('An error occured when executing the selector '.$selector);
+                } catch (\Exception $e) {
+                    throw new SelectionException('An exception were detected when executing the selector '.$selector);
                 }
 
                 if (!($query instanceof Builder)) // In case where a selector returns a data directly

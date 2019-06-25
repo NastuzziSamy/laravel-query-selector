@@ -1,4 +1,7 @@
 # Changelog
+## 2.4.0
+- Print different issues (bad arguments, wrong argument types, exceptions and errors)
+
 ## 2.3.4
 - Fix the timestamp usage
 
