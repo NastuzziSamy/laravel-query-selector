@@ -1,4 +1,7 @@
 # Changelog
+## 2.3.4
+- Fix the timestamp usage
+
 ## 2.3.3
 - Workaround to indicate an empty value as false (Laravel sends the Builder if the result is null so we now send false)
 

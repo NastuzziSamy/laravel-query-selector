@@ -10,7 +10,7 @@ class DateParsing {
         try {
             if ($format) {
                 if ($format === 'timestamp')
-                    return Carbon::createFromTimestamp(substr($date, 0, 8)); // To avoid ms
+                    return Carbon::createFromTimestamp(substr($date, 0, 10)); // To avoid js ms
                 else
                     return Carbon::createFromFormat($format, $date);
             }
