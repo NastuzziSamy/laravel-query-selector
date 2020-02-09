@@ -2,8 +2,10 @@
 
 namespace NastuzziSamy\Laravel\Traits;
 
+use Illuminate\Support\{
+    Collection, Facades\Request
+};
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use NastuzziSamy\Laravel\Exceptions\SelectionException;
 use NastuzziSamy\Laravel\Utils\DateParsing;
 
@@ -311,10 +313,12 @@ trait HasSelection {
                             ...(is_array($params) ? $params : explode(',', $params))
                         );
                     }
+                } catch (SelectionException $e) {
+                    throw new SelectionException("$selector: ".$e->getMessage());
                 } catch (\BadMethodCallException $e) {
-                    throw new SelectionException('More parameters (spaced by `,`) are expected for the selector '.$selector);
+                    throw new SelectionException("$selector: More parameters (spaced by `,`) are expected");
                 } catch (\InvalidArgumentException $e) {
-                    throw new SelectionException('Bad parameters were given for the selector '.$selector);
+                    throw new SelectionException("$selector: Bad parameters were given");
                 } catch (\Error $e) {
                     throw new SelectionException('An error occured when executing the selector '.$selector);
                 } catch (\Exception $e) {
@@ -327,12 +331,12 @@ trait HasSelection {
 
             if (in_array('paginate', array_keys($this->selection))) {
                 $default = $this->selection['paginate'];
-                $param = \Request::input('paginate', is_array($default) ? $this->getSelectionOption('paginate.default') : $default);
+                $param = Request::input('paginate', is_array($default) ? $this->getSelectionOption('paginate.default') : $default);
 
                 if ($param) { // Must be treated at last
                     return new Collection($this->scopePaginate(
                         $query,
-                        \Request::input('paginate', $this->selection['paginate'])
+                        Request::input('paginate', $this->selection['paginate'])
                     )->items());
                 }
             }
