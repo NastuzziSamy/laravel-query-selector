@@ -1,7 +1,6 @@
 {
     "name": "nastuzzi-samy/laravel-query-selection",
     "description": "Add some custom scopes on models to make a better selection via requests",
-    "version": "2.4.0",
     "keywords": ["Query", "Laravel", "Model", "Selection", "Paginate", "Pagination", "Order", "Random", "Week", "Day"],
     "license": "MIT",
     "require": {
