@@ -355,7 +355,7 @@ trait HasSelection {
         $collection = $selection instanceof Builder ? $selection->get() : $selection;
 
         if ((is_null($collection) || count($collection) === 0) && !(($this->selectionCanBeEmpty ?? false) || $allowEmptySelection))
-            throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);
+            throw new SelectionException('The selection is maybe too constraining or the page is empty', 204);
 
         return $collection ?? false;
     }
@@ -370,7 +370,7 @@ trait HasSelection {
         $model = $selection instanceof Builder ? $selection->first() : ($selection->first() ?? null);
 
         if (is_null($model) && !(($this->selectionCanBeEmpty ?? false) || $allowEmptySelection))
-            throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);
+            throw new SelectionException('The selection is maybe too constraining or the page is empty', 204);
 
         return $model ?? false;
     }
@@ -386,7 +386,7 @@ trait HasSelection {
         $model = ($selection->first() ?? null);
 
         if (is_null($model) && !(($this->selectionCanBeEmpty ?? false) || $allowEmptySelection))
-            throw new SelectionException('The selection is maybe too constraining or the page is empty', 416);
+            throw new SelectionException('The selection is maybe too constraining or the page is empty', 204);
 
         return $model ?? false;
     }
